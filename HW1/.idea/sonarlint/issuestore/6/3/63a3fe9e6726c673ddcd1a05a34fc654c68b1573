@@ -1,0 +1,36 @@
+
+E
+java:S3740"/Provide the parametrized type for this generic.(Æ¿Îç
+E
+java:S3740"/Provide the parametrized type for this generic.(Î›à¢
+E
+java:S3740"/Provide the parametrized type for this generic.(Î›à¢
+E
+java:S37403"/Provide the parametrized type for this generic.(öÝ¬‰
+E
+java:S37408"/Provide the parametrized type for this generic.(öÝ¬‰
+J
+java:S3740>"/Provide the parametrized type for this generic.(¬Š“Òÿÿÿÿÿ
+J
+java:S3740>"/Provide the parametrized type for this generic.(¬Š“Òÿÿÿÿÿ
+J
+java:S3740>"/Provide the parametrized type for this generic.(¬Š“Òÿÿÿÿÿ
+J
+java:S3740E"/Provide the parametrized type for this generic.(öÕÂŸúÿÿÿÿ
+J
+java:S3740E"/Provide the parametrized type for this generic.(öÕÂŸúÿÿÿÿ
+8
+java:S1659""Declare "dest" on a separate line.(Î›à¢
+b
+java:S1659>"GDeclare "sourceSet2" and all following declarations on a separate line.(¬Š“Òÿÿÿÿÿ
+@
+java:S1659E"%Declare "destSet" on a separate line.(öÕÂŸúÿÿÿÿ
+Z	java:S106]"9Replace this use of System.out or System.err by a logger.(ªØ®­úÿÿÿÿ8º¤ä¿ý/
+O
+java:S1128"3Remove this unused import 'soot.jimple.JimpleBody'.(¼åV8•¦å¿ý/
+a
+java:S1128"?Remove this unused import 'soot.toolkits.graph.BriefUnitGraph'.(×ýô„ùÿÿÿÿ8•¦å¿ý/
+`
+java:S1128">Remove this unused import 'soot.toolkits.graph.DirectedGraph'.(¯®£Åúÿÿÿÿ8•¦å¿ý/
+T
+java:S1128"2Remove this unused import 'java.util.Collections'.(¢³ïÓþÿÿÿÿ8•¦å¿ý/
