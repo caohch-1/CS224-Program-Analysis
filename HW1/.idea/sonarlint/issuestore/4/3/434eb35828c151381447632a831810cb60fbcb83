@@ -1,0 +1,22 @@
+
+Q
+java:S3740*"/Provide the parametrized type for this generic.(•ÓÇŞıÿÿÿÿ8ßé°Òş/
+‰
+java:S1130"lRemove the declaration of thrown exception 'java.io.IOException', as it cannot be thrown from method's body.(œû¿Ø8¹ê°Òş/
+U
+java:S3878"8Remove this array creation and simply pass the elements.(Å¼ê8Óê°Òş/
+F
+java:S1659+"$Declare "tmpRef" on a separate line.(€¿ûÿÿÿÿ8Ûê°Òş/
+X	java:S125I"<This block of commented-out lines of code should be removed.(İ¡²ë8ñê°Òş/
+]	java:S125P"<This block of commented-out lines of code should be removed.(ÇĞº¦øÿÿÿÿ8òê°Òş/
+]	java:S125Z"<This block of commented-out lines of code should be removed.(ÉÂó¨ıÿÿÿÿ8òê°Òş/
+P
+java:S1128"3Remove this unused import 'soot.baf.BafASMBackend'.(ÿóÂº8ôê°Òş/
+N
+java:S1128"1Remove this unused import 'soot.options.Options'.(šÆãó8ôê°Òş/
+n
+java:S1192"QDefine a constant instead of duplicating this literal "java.lang.String" 3 times.(Å¼ê8öê°Òş/
+O
+java:S1199%"-Extract this nested code block into a method.(ÒÌâ–øÿÿÿÿ8ûê°Òş/
+O
+java:S1199>"-Extract this nested code block into a method.(ÒÌâ–øÿÿÿÿ8ûê°Òş/

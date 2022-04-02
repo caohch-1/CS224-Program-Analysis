@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3010a4dd-3901-422a-8d2e-49065a6b6db1" name="Changes" comment="" />
+    <list default="true" id="3010a4dd-3901-422a-8d2e-49065a6b6db1" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/4/3/434eb35828c151381447632a831810cb60fbcb83" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/4/3/434eb35828c151381447632a831810cb60fbcb83" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="2740pO3PqUTgSfGOvDki20CZ6dw" />
   <component name="ProjectViewState">
@@ -17,6 +23,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="preferences.externalTools" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -27,10 +34,15 @@
       <option name="presentableId" value="Default" />
       <updated>1648564232568</updated>
       <workItem from="1648564233675" duration="15000" />
+      <workItem from="1648903422529" duration="54000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

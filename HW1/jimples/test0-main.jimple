@@ -1,0 +1,25 @@
+    public static void main(java.lang.String[])
+    {
+        java.lang.String[] args;
+        int a, b, c, temp$0, temp$1, temp$2, temp$3;
+
+        args := @parameter0: java.lang.String[];
+
+        temp$0 = 0;
+
+        a = temp$0;
+
+        temp$1 = 1;
+
+        a = temp$1;
+
+        temp$2 = a * 2;
+
+        b = temp$2;
+
+        temp$3 = 3;
+
+        c = temp$3;
+
+        return;
+    }
