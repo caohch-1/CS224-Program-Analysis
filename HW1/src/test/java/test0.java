@@ -5,6 +5,6 @@ public class test0 {
         a = 1;
         b = a * 2;
         c = 3;
-        return c;
+//        return c;
     }
 }
