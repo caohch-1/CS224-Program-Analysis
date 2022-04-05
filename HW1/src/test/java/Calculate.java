@@ -37,8 +37,13 @@ public class Calculate {
 
     public static void main(String[] args) {
         Calculate calculate1 = new Calculate(10);
-        Calculate calculate2 = new Calculate(20, calculate1);
-        calculate2.getCal().setJustTest(30);
+        for (int i = 0; i < 10; i ++) {
+            calculate1.setJustTest(calculate1.add(calculate1.getJustTest(), 1));
+        }
+        System.out.println(calculate1.getJustTest());
+        for (int i = 0; i < 10; i ++) {
+            calculate1.setJustTest(calculate1.sub(calculate1.getJustTest(), 1));
+        }
         System.out.println(calculate1.getJustTest());
     }
 }

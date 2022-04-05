@@ -5,72 +5,38 @@ import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.options.Options;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class LiveVariableAnalysis {
     private final static Logger logger = LoggerFactory.getLogger("LVA Logger");
     MyCFG myCFG;
+    SootClass mainClass;
 
-    public LiveVariableAnalysis(String className, String[] args) {
-        try {
-            setupSoot(className);
-        } catch (CompilationDeathException e) {
-            logger.error(e.toString());
-            return;
-        }
-        soot.Main.main(args);
+    public LiveVariableAnalysis(String className, String methodName) {
+        setupSoot();
         logger.info(String.format("Setup %s Done, Soot start", className));
 
-        SootClass mainClass = Scene.v().getMainClass();
-        String methodSignature = "void main(java.lang.String[])";
-        SootMethod mainMethod = mainClass.getMethod(methodSignature);
-        Body jimpleBody = mainMethod.retrieveActiveBody();
+        try {
+            mainClass = Scene.v().loadClassAndSupport(className);
+        } catch (CompilationDeathException e) {
+            logger.error(e.toString());
+            System.exit(-1);
+        }
+
+        SootMethod method = mainClass.getMethodByName(methodName);
+        Body jimpleBody = method.retrieveActiveBody();
         myCFG = new MyCFG(jimpleBody);
-        logger.info(String.format("Generate CFG for %s Done\n", mainMethod));
-
-    }
-
-    public static void setupSoot(String className) {
-        // Soot class path
-        String classesDirMain = "./src/main/java";
-        String classesDirTest = "./src/test/java";
-        String jceDir = System.getProperty("java.home") + "/lib/jce.jar";
-        String jrtDir = System.getProperty("java.home") + "/lib/rt.jar";
-        String path = jrtDir + File.pathSeparator + jceDir;
-        path += File.pathSeparator + classesDirMain + File.pathSeparator + classesDirTest;
-
-        // Init Scene
-        Scene.v().setSootClassPath(path);
-
-        // Add necessary opts
-        Options.v().set_process_dir(Collections.singletonList(classesDirMain));
-        Options.v().set_process_dir(Collections.singletonList(classesDirTest));
-
-        // Set Main class
-        SootClass mainClass = Scene.v().loadClassAndSupport(className);
-        Scene.v().setMainClass(mainClass);
+        logger.info(String.format("Generate CFG for %s Done", method));
     }
 
     public static void main(String[] args) {
-        String mainClassName = "Calculate";
+        String mainClassName = "test0";
+        String mainMethodName = "main";
 
-        LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, args);
-        liveVariableAnalysis.doAnalysis();
+        LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName);
+        liveVariableAnalysis.doAnalysisAndShow();
 
-        // Todo: From tail use getPredsOf to travel graph
-        int unitID = 1;
-        for (CFGNode cfgNode : liveVariableAnalysis.getMyCFG().getCfgNodes()) {
-            logger.info(String.format("[%d]: %s", unitID, cfgNode));
-            liveVariableAnalysis.transferNode(cfgNode);
-            logger.info(String.format("[%d]: %s\n", unitID, cfgNode));
-            unitID += 1;
-        }
-
-//        String mainClassName = "Calculate";
+        //        String mainClassName = "Calculate";
 //        String mainClassPath = String.format("./target/test-classes/%s.class", mainClassName);
 //        ClassFile mainClassFile = new ClassFile(mainClassName);
 //        FileInputStream is = new FileInputStream(mainClassPath);
@@ -95,6 +61,14 @@ public class LiveVariableAnalysis {
 //        logger.info(String.format("Creating unitGraph with %d units ...", unitGraph.size()));
     }
 
+    void setupSoot() {
+        Options.v().set_prepend_classpath(true);
+        String classesDirMain = "./src/main/java";
+        String classesDirTest = "./src/test/java";
+        Options.v().set_process_dir(Collections.singletonList(classesDirMain));
+        Options.v().set_process_dir(Collections.singletonList(classesDirTest));
+    }
+
     void newBoundaryFact() {
         for (CFGNode cfgTailNode : myCFG.getTails()) {
             cfgTailNode.setInSet(new HashSet<>());
@@ -110,8 +84,9 @@ public class LiveVariableAnalysis {
     }
 
     void meetInto(CFGNode upNode, CFGNode downNode) {
-        upNode.getOutSet().addAll(downNode.getInSet());
-
+        Set<Local> temp = upNode.getOutSet();
+        temp.addAll(downNode.getInSet());
+        upNode.setOutSet(temp);
     }
 
     void transferNode(CFGNode node) {
@@ -137,16 +112,62 @@ public class LiveVariableAnalysis {
             }
         }
 
-        node.setInSet(new HashSet<>());
-        node.getInSet().addAll(node.getOutSet());
-        node.getInSet().removeAll(defLocals);
-        node.getInSet().addAll(useLocals);
+        Set<Local> temp = new HashSet<>(node.getOutSet());
+        temp.removeAll(defLocals);
+        temp.addAll(useLocals);
+
+        node.setInSet(temp);
     }
 
-    // Todo: Implement Iterator
-    void doAnalysis() {
+    int doAnalysis() {
         newBoundaryFact();
         newInitialFact();
+
+        int iterNum = 0;
+        boolean ifChange = true;
+        while (ifChange) {
+            iterNum += 1;
+            ifChange = false;
+            Stack<CFGNode> stack = new Stack<>();
+            Set<CFGNode> visited = new HashSet<>();
+            stack.addAll(getMyCFG().getTails());
+            while (stack.size() != 0) {
+                // Get predNodes for future travel
+                CFGNode node = stack.pop();
+                visited.add(node);
+                ArrayList<CFGNode> predNodes = getMyCFG().getPredsOf(node);
+                for (CFGNode predNode : predNodes) {
+                    if (!visited.contains(predNode)) stack.push(predNode);
+                }
+
+                Set<Local> inSetBefore = new HashSet<>(node.getInSet());
+                Set<Local> outSetBefore = new HashSet<>(node.getOutSet());
+
+                //Calculate Meet&Transfer
+                ArrayList<CFGNode> succNodes = getMyCFG().getSuccsOf(node);
+                if (succNodes.size() == 0) continue;
+
+                for (CFGNode succNode : succNodes) {
+                    meetInto(node, succNode);
+                }
+                transferNode(node);
+
+                if (!Objects.equals(inSetBefore.toString(), node.getInSet().toString()) ||
+                        !Objects.equals(outSetBefore.toString(), node.getOutSet().toString()))
+                    ifChange = true;
+            }
+        }
+        return iterNum;
+    }
+
+    void doAnalysisAndShow() {
+        int iterNum = doAnalysis();
+        System.out.printf("Iteration %d times\n", iterNum);
+        int stmtID = 0;
+        for (CFGNode cfgNode : myCFG.getCfgNodes()) {
+            stmtID += 1;
+            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\n\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet());
+        }
     }
 
     public MyCFG getMyCFG() {

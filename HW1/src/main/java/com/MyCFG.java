@@ -54,7 +54,7 @@ public class MyCFG {
     ArrayList<CFGNode> getPredsOf(CFGNode cfgNode) {
         ArrayList<CFGNode> predNodes = new ArrayList<>();
         List<Unit> predUnits = unitGraph.getPredsOf(cfgNode.getUnit());
-        for (Unit predUnit: predUnits) {
+        for (Unit predUnit : predUnits) {
             predNodes.add(searchNodeByUnit(predUnit));
         }
         return predNodes;
@@ -63,7 +63,7 @@ public class MyCFG {
     ArrayList<CFGNode> getSuccsOf(CFGNode cfgNode) {
         ArrayList<CFGNode> succNodes = new ArrayList<>();
         List<Unit> succUnits = unitGraph.getSuccsOf(cfgNode.getUnit());
-        for (Unit predUnit: succUnits) {
+        for (Unit predUnit : succUnits) {
             succNodes.add(searchNodeByUnit(predUnit));
         }
         return succNodes;
