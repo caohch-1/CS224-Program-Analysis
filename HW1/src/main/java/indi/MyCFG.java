@@ -1,4 +1,4 @@
-package com;
+package indi;
 
 import soot.Body;
 import soot.Unit;
@@ -11,19 +11,6 @@ import java.util.List;
 public class MyCFG {
     UnitGraph unitGraph;
     ArrayList<CFGNode> cfgNodes;
-
-    public MyCFG(UnitGraph unitGraph, ArrayList<CFGNode> cfgNodes) {
-        this.unitGraph = unitGraph;
-        this.cfgNodes = cfgNodes;
-
-        for (CFGNode tailNode : getTails()) {
-            tailNode.setTail(true);
-        }
-
-        for (CFGNode headNode : getHeads()) {
-            headNode.setHead(true);
-        }
-    }
 
     public MyCFG(Body body) {
         this.unitGraph = new ClassicCompleteUnitGraph(body);

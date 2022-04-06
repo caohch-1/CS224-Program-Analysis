@@ -1,4 +1,4 @@
-package com;
+package indi;
 
 import soot.Local;
 import soot.Unit;
@@ -12,14 +12,6 @@ public class CFGNode {
     Unit unit;
     boolean isTail;
     boolean isHead;
-
-    public CFGNode(Set<Local> inSet, Set<Local> outSet, Unit unit) {
-        this.inSet = inSet;
-        this.outSet = outSet;
-        this.unit = unit;
-        this.isHead = false;
-        this.isTail = false;
-    }
 
     public CFGNode(Unit unit) {
         this.inSet = new HashSet<>();

@@ -1,30 +1,16 @@
 public class Calculate {
-    int justTest;
-    Calculate cal;
-
-    public Calculate(int justTest, Calculate cal) {
-        this.justTest = justTest;
-        this.cal = cal;
-    }
+    int anInt;
 
     public Calculate(int justTest) {
-        this.justTest = justTest;
+        this.anInt = justTest;
     }
 
-    public int getJustTest() {
-        return justTest;
+    public int getAnInt() {
+        return anInt;
     }
 
-    public void setJustTest(int justTest) {
-        this.justTest = justTest;
-    }
-
-    public Calculate getCal() {
-        return cal;
-    }
-
-    public void setCal(Calculate cal) {
-        this.cal = cal;
+    public void setAnInt(int anInt) {
+        this.anInt = anInt;
     }
 
     int add(int a, int b) {
@@ -37,13 +23,24 @@ public class Calculate {
 
     public static void main(String[] args) {
         Calculate calculate1 = new Calculate(10);
-        for (int i = 0; i < 10; i ++) {
-            calculate1.setJustTest(calculate1.add(calculate1.getJustTest(), 1));
+        for (int i = 0; i < 5; i ++) {
+            calculate1.setAnInt(calculate1.add(calculate1.getAnInt(), 1));
         }
-        System.out.println(calculate1.getJustTest());
-        for (int i = 0; i < 10; i ++) {
-            calculate1.setJustTest(calculate1.sub(calculate1.getJustTest(), 1));
+        System.out.println(calculate1.getAnInt());
+
+        int i = 0;
+        while(i < 5) {
+            i ++;
+            calculate1.setAnInt(calculate1.sub(calculate1.getAnInt(), 1));
         }
-        System.out.println(calculate1.getJustTest());
+        System.out.println(calculate1.getAnInt());
+
+        if (i == 5) {
+            System.out.println(calculate1.getAnInt());
+        } else {
+            calculate1.setAnInt(calculate1.add(calculate1.getAnInt(), 1));
+            calculate1.setAnInt(calculate1.sub(calculate1.getAnInt(), 1));
+            System.out.println(calculate1.getAnInt());
+        }
     }
 }

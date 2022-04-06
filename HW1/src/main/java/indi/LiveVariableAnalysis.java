@@ -1,10 +1,12 @@
-package com;
+package indi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.options.Options;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class LiveVariableAnalysis {
@@ -12,9 +14,11 @@ public class LiveVariableAnalysis {
     MyCFG myCFG;
     SootClass mainClass;
 
+    String classesDirMain = "./src/main/java/";
+    String classesDirTest = "./src/test/java/";
+
     public LiveVariableAnalysis(String className, String methodName) {
         setupSoot();
-        logger.info(String.format("Setup %s Done, Soot start", className));
 
         try {
             mainClass = Scene.v().loadClassAndSupport(className);
@@ -26,7 +30,8 @@ public class LiveVariableAnalysis {
         SootMethod method = mainClass.getMethodByName(methodName);
         Body jimpleBody = method.retrieveActiveBody();
         myCFG = new MyCFG(jimpleBody);
-        logger.info(String.format("Generate CFG for %s Done", method));
+        logger.info(String.format("Soot Class: %s, Method: %s", mainClass.getName(), method.getName()));
+        logger.info(String.format("Soot method locals: %s", jimpleBody.getLocals()));
     }
 
     public static void main(String[] args) {
@@ -63,10 +68,10 @@ public class LiveVariableAnalysis {
 
     void setupSoot() {
         Options.v().set_prepend_classpath(true);
-        String classesDirMain = "./src/main/java";
-        String classesDirTest = "./src/test/java";
         Options.v().set_process_dir(Collections.singletonList(classesDirMain));
         Options.v().set_process_dir(Collections.singletonList(classesDirTest));
+
+        Options.v().set_keep_line_number(true);
     }
 
     void newBoundaryFact() {
@@ -161,13 +166,33 @@ public class LiveVariableAnalysis {
     }
 
     void doAnalysisAndShow() {
+        String[] sourceCodes = readFile(classesDirTest + mainClass.getName() + ".java");
+
         int iterNum = doAnalysis();
         System.out.printf("Iteration %d times\n", iterNum);
-        int stmtID = 0;
+        int stmtID = 0, sourceID = 0;
         for (CFGNode cfgNode : myCFG.getCfgNodes()) {
             stmtID += 1;
-            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\n\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet());
+            int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
+            if (newSourceID != sourceID) {
+                sourceID = newSourceID;
+                System.out.printf("\n=====Source[%d]: %s=====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
+            }
+            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet());
         }
+    }
+
+    String[] readFile(String filePath) {
+        File javaClass = new File(filePath);
+        try {
+            Scanner scanner = new Scanner(javaClass);
+            ArrayList<String> codes = new ArrayList<>();
+            while (scanner.hasNext()) codes.add(scanner.nextLine());
+            return codes.toArray(new String[]{});
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public MyCFG getMyCFG() {
