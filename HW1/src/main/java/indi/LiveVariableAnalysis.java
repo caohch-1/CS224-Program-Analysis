@@ -7,6 +7,8 @@ import soot.options.Options;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class LiveVariableAnalysis {
@@ -16,6 +18,7 @@ public class LiveVariableAnalysis {
 
     String classesDirMain = "./src/main/java/";
     String classesDirTest = "./src/test/java/";
+    String outputDir = "./outputFiles/";
 
     public LiveVariableAnalysis(String className, String methodName) {
         setupSoot();
@@ -34,14 +37,14 @@ public class LiveVariableAnalysis {
         logger.info(String.format("Soot method locals: %s", jimpleBody.getLocals()));
     }
 
-    public static void main(String[] args) {
-        String mainClassName = "test0";
+    public static void main(String[] args) throws IOException {
+        String mainClassName = "Calculate";
         String mainMethodName = "main";
 
         LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName);
         liveVariableAnalysis.doAnalysisAndShow();
 
-        //        String mainClassName = "Calculate";
+//        String mainClassName = "Calculate";
 //        String mainClassPath = String.format("./target/test-classes/%s.class", mainClassName);
 //        ClassFile mainClassFile = new ClassFile(mainClassName);
 //        FileInputStream is = new FileInputStream(mainClassPath);
@@ -133,16 +136,15 @@ public class LiveVariableAnalysis {
         while (ifChange) {
             iterNum += 1;
             ifChange = false;
-            Stack<CFGNode> stack = new Stack<>();
             Set<CFGNode> visited = new HashSet<>();
-            stack.addAll(getMyCFG().getTails());
-            while (stack.size() != 0) {
+            Queue<CFGNode> queue = new LinkedList<>(getMyCFG().getTails());
+            while (queue.size() != 0) {
                 // Get predNodes for future travel
-                CFGNode node = stack.pop();
+                CFGNode node = queue.poll();
                 visited.add(node);
                 ArrayList<CFGNode> predNodes = getMyCFG().getPredsOf(node);
                 for (CFGNode predNode : predNodes) {
-                    if (!visited.contains(predNode)) stack.push(predNode);
+                    if (!visited.contains(predNode)) queue.offer(predNode);
                 }
 
                 Set<Local> inSetBefore = new HashSet<>(node.getInSet());
@@ -165,12 +167,13 @@ public class LiveVariableAnalysis {
         return iterNum;
     }
 
-    void doAnalysisAndShow() {
+    void doAnalysisAndShow() throws IOException {
         String[] sourceCodes = readFile(classesDirTest + mainClass.getName() + ".java");
 
         int iterNum = doAnalysis();
+        Map<Integer, String> map = new HashMap<>();
         System.out.printf("Iteration %d times\n", iterNum);
-        int stmtID = 0, sourceID = 0;
+        int stmtID = 0, sourceID = 1;
         for (CFGNode cfgNode : myCFG.getCfgNodes()) {
             stmtID += 1;
             int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
@@ -179,7 +182,15 @@ public class LiveVariableAnalysis {
                 System.out.printf("\n=====Source[%d]: %s=====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
             }
             System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet());
+            map.put(sourceID, cfgNode.getOutSet().toString());
         }
+
+        for (int i = 0; i < sourceCodes.length; i++) {
+            String out = map.get(i + 1);
+            if (out != null) sourceCodes[i] += "\t" + out + "\n";
+            else sourceCodes[i] += "\n";
+        }
+        writeFile(outputDir + mainClass.getName() + ".java", sourceCodes);
     }
 
     String[] readFile(String filePath) {
@@ -193,6 +204,13 @@ public class LiveVariableAnalysis {
             e.printStackTrace();
         }
         return null;
+    }
+
+    void writeFile(String filePath, String[] data) throws IOException {
+        FileWriter writer = new FileWriter(filePath);
+        for (String line : data) writer.write(line);
+        writer.flush();
+        writer.close();
     }
 
     public MyCFG getMyCFG() {
