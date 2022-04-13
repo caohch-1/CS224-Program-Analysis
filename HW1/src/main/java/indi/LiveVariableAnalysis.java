@@ -22,6 +22,7 @@ public class LiveVariableAnalysis {
 
     public LiveVariableAnalysis(String className, String methodName) {
         setupSoot();
+        logger.info("Soot setup finish");
 
         try {
             mainClass = Scene.v().loadClassAndSupport(className);

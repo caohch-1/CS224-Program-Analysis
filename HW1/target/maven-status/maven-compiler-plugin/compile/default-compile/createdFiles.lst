@@ -1,0 +1,4 @@
+indi/LiveVariableAnalysis.class
+indi/CFGNode.class
+indi/LiveVariableAnalysisSoot.class
+indi/MyCFG.class
