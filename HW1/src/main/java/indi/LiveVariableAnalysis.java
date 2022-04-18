@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -51,13 +50,13 @@ public class LiveVariableAnalysis {
         } else {
             File[] testJavaPaths = new File(args[0]).listFiles();
             if (testJavaPaths == null) {
-                logger.error("No test file in "+args[0]+"\n");
+                logger.error("No test file in " + args[0] + "\n");
                 return;
             }
             Files.createDirectories(Paths.get("./output"));
             for (File testJava : testJavaPaths) {
                 String mainClassName = testJava.getName().replace(".java", "");
-                LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, args[0]+"/");
+                LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, args[0] + "/");
                 liveVariableAnalysis.doAnalysisAndShowWithArg(testJava.getPath());
             }
         }
@@ -228,7 +227,7 @@ public class LiveVariableAnalysis {
     void writeFile(String filePath, String[] data) throws IOException {
         FileWriter writer = new FileWriter(filePath);
         boolean ifWrite = false;
-        for (String line : Arrays.copyOfRange(data, 0, data.length -2)) {
+        for (String line : Arrays.copyOfRange(data, 0, data.length - 2)) {
             if (ifWrite) {
                 for (int i = 0; i < 8; i++) {
                     line = line.replaceFirst(" ", "");
