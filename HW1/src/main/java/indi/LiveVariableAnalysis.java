@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
 import soot.options.Options;
+import soot.util.Chain;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ public class LiveVariableAnalysis {
     SootClass mainClass;
     String classesDir;
     String outputDir = "./outputFiles/";
+    Chain<Local> myLocals;
 
     public LiveVariableAnalysis(String className, String methodName, String dir) {
         classesDir = dir;
@@ -34,6 +36,7 @@ public class LiveVariableAnalysis {
         SootMethod method = mainClass.getMethodByName(methodName);
         Body jimpleBody = method.retrieveActiveBody();
         myCFG = new MyCFG(jimpleBody);
+        myLocals = jimpleBody.getLocals();
         System.out.println("\n****************************************");
 
         logger.info(String.format("Soot Class: %s, Method: %s", mainClass.getName(), method.getName()));
@@ -44,7 +47,7 @@ public class LiveVariableAnalysis {
         String mainMethodName = "main";
 
         if (args.length == 0) {
-            String mainClassName = "Calculate";
+            String mainClassName = "test0";
             LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./src/test/java/");
             liveVariableAnalysis.doAnalysisAndShow();
         } else {
@@ -144,7 +147,10 @@ public class LiveVariableAnalysis {
 
                 //Calculate Meet&Transfer
                 ArrayList<CFGNode> succNodes = getMyCFG().getSuccsOf(node);
-                if (succNodes.size() == 0) continue;
+                if (succNodes.size() == 0) {
+                    transferNode(node);
+                    continue;
+                }
 
                 for (CFGNode succNode : succNodes) {
                     meetInto(node, succNode);
