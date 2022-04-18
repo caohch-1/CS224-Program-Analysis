@@ -206,10 +206,10 @@ public class LiveVariableAnalysis {
 
         for (int i = 0; i < sourceCodes.length; i++) {
             String out = map.get(i + 1);
-            if (out != null) sourceCodes[i] += "\t" + out + "\n";
+            if (out != null) sourceCodes[i] += " " + out + "\n";
             else sourceCodes[i] += "\n";
         }
-        writeFile("./output/" + mainClass.getName() + ".java", sourceCodes);
+        writeFile("./output/" + mainClass.getName() + ".txt", sourceCodes);
     }
 
     String[] readFile(String filePath) {
@@ -227,7 +227,18 @@ public class LiveVariableAnalysis {
 
     void writeFile(String filePath, String[] data) throws IOException {
         FileWriter writer = new FileWriter(filePath);
-        for (String line : data) writer.write(line);
+        boolean ifWrite = false;
+        for (String line : Arrays.copyOfRange(data, 0, data.length -2)) {
+            if (ifWrite) {
+                for (int i = 0; i < 8; i++) {
+                    line = line.replaceFirst(" ", "");
+                }
+                writer.write(line);
+            }
+            if (line.contains("main")) {
+                ifWrite = true;
+            }
+        }
         writer.flush();
         writer.close();
     }
