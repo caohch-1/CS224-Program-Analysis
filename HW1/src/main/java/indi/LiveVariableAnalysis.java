@@ -9,6 +9,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class LiveVariableAnalysis {
@@ -32,6 +35,8 @@ public class LiveVariableAnalysis {
         SootMethod method = mainClass.getMethodByName(methodName);
         Body jimpleBody = method.retrieveActiveBody();
         myCFG = new MyCFG(jimpleBody);
+        logger.info("\n****************************************");
+
         logger.info(String.format("Soot Class: %s, Method: %s", mainClass.getName(), method.getName()));
         logger.info(String.format("Soot method locals: %s", jimpleBody.getLocals()));
     }
@@ -40,13 +45,21 @@ public class LiveVariableAnalysis {
         String mainMethodName = "main";
 
         if (args.length == 0) {
-            String mainClassName = "IfElse";
+            String mainClassName = "Calculate";
             LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./src/test/java/");
             liveVariableAnalysis.doAnalysisAndShow();
         } else {
-            String mainClassName = args[0].replace("./", "").replace(".java", "");
-            LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./");
-            liveVariableAnalysis.doAnalysisAndShowWithArg(args[0]);
+            File[] testJavaPaths = new File(args[0]).listFiles();
+            if (testJavaPaths == null) {
+                logger.error("No test file in "+args[0]+"\n");
+                return;
+            }
+            Files.createDirectories(Paths.get("./output"));
+            for (File testJava : testJavaPaths) {
+                String mainClassName = testJava.getName().replace(".java", "");
+                LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, args[0]+"/");
+                liveVariableAnalysis.doAnalysisAndShowWithArg(testJava.getPath());
+            }
         }
     }
 
@@ -176,6 +189,7 @@ public class LiveVariableAnalysis {
         String[] sourceCodes = readFile(filePath);
 
         int iterNum = doAnalysis();
+
         Map<Integer, String> map = new HashMap<>();
         System.out.printf("Iteration %d times\n", iterNum);
         int stmtID = 0, sourceID = 1;
@@ -195,7 +209,7 @@ public class LiveVariableAnalysis {
             if (out != null) sourceCodes[i] += "\t" + out + "\n";
             else sourceCodes[i] += "\n";
         }
-        writeFile(classesDir + mainClass.getName() + ".java", sourceCodes);
+        writeFile("./output/" + mainClass.getName() + ".java", sourceCodes);
     }
 
     String[] readFile(String filePath) {
