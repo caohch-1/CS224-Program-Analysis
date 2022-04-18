@@ -39,8 +39,7 @@ public class CFGNode {
 
     @Override
     public String toString() {
-        return String.format("CFGNode{ %s }\ninSet: %s, outSet: %s, isHead: %s, isTail: %s\n",
-                unit, inSet, outSet, isHead, isTail);
+        return String.format("CFGNode{ %s }\ninSet: %s, outSet: %s, isHead: %s, isTail: %s\n", unit, inSet, outSet, isHead, isTail);
     }
 
     public Set<Local> getInSet() {
