@@ -48,30 +48,6 @@ public class LiveVariableAnalysis {
             LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./");
             liveVariableAnalysis.doAnalysisAndShowWithArg(args[0]);
         }
-
-//        String mainClassName = "Calculate";
-//        String mainClassPath = String.format("./target/test-classes/%s.class", mainClassName);
-//        ClassFile mainClassFile = new ClassFile(mainClassName);
-//        FileInputStream is = new FileInputStream(mainClassPath);
-//        mainClassFile.loadClassFile(is);
-//        logger.info(String.format("Loading Class: %s ...", mainClassFile));
-//
-//        method_info methodInfo = null;
-//        for (method_info method: mainClassFile.methods) {
-//            if (Objects.equals(method.toName(mainClassFile.constant_pool), "main")) {
-//                methodInfo = method;
-//            }
-//        }
-//        logger.info(String.format("Loading method_info: %s ...", methodInfo.toName(mainClassFile.constant_pool)));
-//
-//        mainClassFile.parseMethod(methodInfo);
-//        CFG cfg = new CFG(methodInfo);
-//
-//        JimpleBody jimpleBody = new JimpleBody();
-//        cfg.jimplify(mainClassFile.constant_pool, mainClassFile.this_class, mainClassFile.bootstrap_methods_attribute, jimpleBody);
-//
-//        UnitGraph unitGraph = new ClassicCompleteUnitGraph(jimpleBody);
-//        logger.info(String.format("Creating unitGraph with %d units ...", unitGraph.size()));
     }
 
     void setupSoot() {
