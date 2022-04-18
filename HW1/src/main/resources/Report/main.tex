@@ -7,6 +7,9 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{dirtree}
+\usepackage{listings}
+
 \newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -23,17 +26,117 @@ caohch1@shanghaitech.edu.cn}
 
 \maketitle
 \begin{abstract}
-    Report for \textit{CS224 Homework1: Live Variable Analysis}
+    Report for \textit{CS224 Homework1: Live Variable Analysis}, including project structure, algorithm introduction, and Implementation description.
 \end{abstract}
+
 \section{Project Structure}
+Following is the directory tree of the source code of the project:
+\dirtree{%
+.1 LiveVariableAnalysis.
+.2 src.
+.3 main.
+.4 java.
+.5 indi.
+.6 CFGNode.java.
+.6 MyCFG.java.
+.6 LiveVariableAnalysis.java.
+.4 resources.
+.3 test.
+.2 out.
+.2 pox.xml.
+}
+Here we give a brief description of each part of the project:
+\begin{itemize}
+    \item \textbf{pom.xml: } Maven configuration of the project.
+    \item \textbf{out: } Directory holds built artifacts(i.e., jar package).
+    \item \textbf{src/main/java/indi: } Directory holds key codes for the project.
+    \item \textbf{src/main/resources: } Directory holds resource files like MANIFEST.MF.
+    \item \textbf{src/test: } Directory holds test files of the project.
+\end{itemize}
+
+For the three key java file (i.e., \textbf{CFGNode.java}, \textbf{MyCFG.java}, and \textbf{LiveVariableAnalysis.java}), we describe them in detail in Sec.~\ref{sec:imp}.
 
 \section{Algorithm}
+\begin{lstlisting}[label=lst:LVA, caption=Algorithm for LiveVariableAnalysis, language=java, mathescape=true, numbers=left]
+    $\text{IN[exit]}$ = $\emptyset$;
+    for($\text{each basic block B\textbackslash exit}$)
+        IN[B] = $\emptyset$;
+    while ($\text{changes to any IN occur}$)
+        for ($\text{each basic block B\textbackslash exit}$) {
+            $\text{OUT[B]}$ = $\cup_{\text{S a successor of B}}$ IN[S];
+            $\text{IN[B]}$  = $\text{use}_B \cup$(OUT[B] - $\text{def}_B$);
+        }
+\end{lstlisting}
+List.~\ref{lst:LVA} shows the pseudocode of the live variable analysis. There are three key points in the algorithm need to be implemented:
+\begin{itemize}
+    \item \textbf{MeetInto: } Compute the merge set of IN sets of a node's successors, which corresponding to Line\#6.
+    \item \textbf{TransferNode: }Compute the IN set of a node based on transfer function, which corresponding to Line\#7.
+    \item \textbf{Solver: }  Main iterable solver, which corresponding to Line\#4\&Line\#5.
+\end{itemize}
 
-\section{Implementation}
 
+\section{Implementation}\label{sec:imp}
+The main idea of my implementation is to first create a control flow graph (CFG) and then iterably compute the IN and OUT set of each node while traversing CFG.
+The immaterial member methods (e.g., getter and setter methods) and attributes (e.g, Logger from org.slf4j) will be ignored in the following sections.
 
-% \bibliographystyle{IEEEtran}
-% \bibliography{reference.bib}
+\subsection{CFGNode}
+\textbf{CFGNode} is the data structure for every node in CFG.
+ Each node contains five member attributes as follows:
 
+\begin{itemize}
+    \item \textbf{Set$<$Local$>$ inSet: } A HashSet contains all Locals belong to IN set of a node.
+    \item \textbf{Set$<$Local$>$ outSet: } A HashSet contains all Locals belong to OUT set of a node.
+    \item \textbf{Unit unit: } The Jimple statement. 
+    \item \textbf{boolean isTail: } Used to indicate if it is the entry node of the CFG.
+    \item \textbf{boolean isHead: } Used to indicate if it is the exit node of the CFG.
+\end{itemize}
+
+\subsection{MyCFG}
+\textbf{MyCFG} is fine-tuned from \textbf{UnitGraph} which is a built-in class of \textbf{Soot}.
+It has two member attributes as follows:
+
+\begin{itemize}
+    \item \textbf{UnitGraph unitGraph: } Built-in class of Soot which generated from a JimpleBody.
+    \item \textbf{ArrayList$<$CFGNode$>$ cfgNodes: } An arrayList contains all \textbf{CFGNode}s of the CFG.
+\end{itemize}
+
+\textbf{MyCFG} implementes has three key functions as follows:
+\begin{itemize}
+    \item \textbf{CFGNode searchNodeByUnit(Unit unit): } This function traverse the \textbf{cfgNodes} and return the \textbf{CFGNode} whose \textbf{uint} equals to the paramater.
+    \item \textbf{ArrayList$<$CFGNode$>$ getPredsOf(CFGNode cfgNode): } This function return the predecessor nodes of the paramater, which is fine-tuned from function \textbf{List$<$Unit$>$ getPredsOf(Unit u)} of the class \textbf{UnitGraph}.
+    \item \textbf{ArrayList$<$CFGNode$>$ getSuccsOf(CFGNode cfgNode): } This function return the successors nodes of the paramater, which is fine-tuned from function \textbf{List$<$Unit$>$ getSuccsOf(Unit u)} of the class \textbf{UnitGraph}.
+\end{itemize}
+
+\subsection{LiveVariableAnalysis}
+This is the main class to implemente the live variable analysis. 
+We now describe the key member methods one by one according to the order in which they are called to complete the analysis.
+
+\begin{enumerate}
+    \item \textbf{void setupSoot()} is used to indicate the environment variable \$JAVA\_HOME and process directory for Soot. We invoke \textbf{Options.v().set\_prepend\_classpath()} and \textbf{Options.v().set\_process\_dir()} to complete two tasks. So make sure \$JAVA\_HOME is set correctly in your environment.
+    \item \textbf{LiveVariableAnalysis(String className, String methodName, String dir)} is the constructor method of the class. Firstly, it invokes \textbf{void setupSoot()}. 
+    Secondly, it load the class and its main method. Note that your class (i.e., java source code) must be compilable or an error will occur.
+    Thirdly, generating a \textbf{MyCFG} and store it into the member attribute.
+    \item \textbf{void newBoundaryFact()} sets \textbf{inSet}s of  all \textbf{CFGNode}s whose \textbf{isTail} equals true in \textbf{MyCFG} to empty.
+    \item \textbf{void newInitialFact()} sets \textbf{inSet}s of all \textbf{CFGNode}s in \textbf{MyCFG} to empty except for whose \textbf{isTail} equals true.
+    \item \textbf{void meetInto(CFGNode upNode, CFGNode downNode)} merges the \textbf{inSet} of \textbf{downNode} into the \textbf{outSet} of \textbf{upNode}.
+    \item \textbf{void transferNode(CFGNode node)} is is slightly more complex. Firstly, we use \textbf{unit.getDefBoxes()} and \textbf{unit.getUseBoxes()} to get \textbf{Set$<$Local$>$ defLocals} and \textbf{Set$<$Local$>$ useLocals}.
+    Secondly, we remove all Locals in \textbf{defLocals} from \textbf{outSet} of the paramater.
+    Thirdly, we add all Locals in \textbf{useLocals} into \textbf{outSet} of the paramater.
+    \item \textbf{int doAnalysis()} is the most important member method. Firstly, it invokes \textbf{newBoundaryFact()} and \textbf{newInitialFact()}.
+    Secondly, we create a \textbf{Queue$<$CFGNode$>$} to help us traverse CFG and add all \textbf{CFGNode} whose \textbf{isTail} equals true. 
+    Thirdly, we create a double nested while loop. 
+    For the inner loop, we stop it until the queue is empty. 
+    In each iteration, we first get the first element in queue and invoke \textbf{MyCFG.getPredsOf(node)} for further pushing the return values into queue.
+    Then we invoke \textbf{meetInto(node, succNode)} and \textbf{transferNode(node)} to update \textbf{inSet} and \textbf{outSet} of each node.
+    Here we also record whether these sets are changed.
+    If no change happened after one whole inner loop, we break the outer loop. 
+    Otherwise, we start a new turn of the inner loop.
+    \item Finally, we utilize \textbf{void writeFile(String filePath, String[] data)} to write the .txt file into the output directory.
+\end{enumerate}
+
+Through the above efforts, for a single java class, we can do the live variable analysis by only one line of code \textbf{new LiveVariableAnalysis("test0", "main", "./test/").doAnalysis()}. 
+There are also member methods like \textbf{void doAnalysisAndShow()} and \textbf{void doAnalysisAndShowWithArg(String filePath)}. 
+They are based on \textbf{int doAnalysis()} and the difference is they display some informations about the preocess of the analysis, which may be more user-friendly and useful for debuging.
+For further details on the implementation, you can read the source code of the submission.
 
 \end{document}
