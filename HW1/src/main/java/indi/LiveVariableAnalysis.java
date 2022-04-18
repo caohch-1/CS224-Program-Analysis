@@ -35,7 +35,7 @@ public class LiveVariableAnalysis {
         SootMethod method = mainClass.getMethodByName(methodName);
         Body jimpleBody = method.retrieveActiveBody();
         myCFG = new MyCFG(jimpleBody);
-        logger.info("\n****************************************");
+        System.out.println("\n****************************************");
 
         logger.info(String.format("Soot Class: %s, Method: %s", mainClass.getName(), method.getName()));
         logger.info(String.format("Soot method locals: %s", jimpleBody.getLocals()));
