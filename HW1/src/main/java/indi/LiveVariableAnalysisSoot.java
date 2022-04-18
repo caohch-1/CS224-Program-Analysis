@@ -71,10 +71,11 @@ public class LiveVariableAnalysisSoot extends BackwardFlowAnalysis<Unit, FlowSet
         // Soot class path
         String classesDirMain = "./src/main/java";
         String classesDirTest = "./src/test/java";
+        String classesDirCurr = "./";
         String jceDir = System.getProperty("java.home") + "/lib/jce.jar";
         String jrtDir = System.getProperty("java.home") + "/lib/rt.jar";
         String path = jrtDir + File.pathSeparator + jceDir;
-        path += File.pathSeparator + classesDirMain + File.pathSeparator + classesDirTest;
+        path += File.pathSeparator + classesDirMain + File.pathSeparator + classesDirTest + File.pathSeparator + classesDirCurr;
 
         // Init Scene
         Scene.v().setSootClassPath(path);

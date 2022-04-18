@@ -15,14 +15,12 @@ public class LiveVariableAnalysis {
     private final static Logger logger = LoggerFactory.getLogger("LVA Logger");
     MyCFG myCFG;
     SootClass mainClass;
-
-    String classesDirMain = "./src/main/java/";
-    String classesDirTest = "./src/test/java/";
+    String classesDir;
     String outputDir = "./outputFiles/";
 
-    public LiveVariableAnalysis(String className, String methodName) {
+    public LiveVariableAnalysis(String className, String methodName, String dir) {
+        classesDir = dir;
         setupSoot();
-        logger.info("Soot setup finish");
 
         try {
             mainClass = Scene.v().loadClassAndSupport(className);
@@ -39,11 +37,17 @@ public class LiveVariableAnalysis {
     }
 
     public static void main(String[] args) throws IOException {
-        String mainClassName = "Calculate";
         String mainMethodName = "main";
 
-        LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName);
-        liveVariableAnalysis.doAnalysisAndShow();
+        if (args.length == 0) {
+            String mainClassName = "IfElse";
+            LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./src/test/java/");
+            liveVariableAnalysis.doAnalysisAndShow();
+        } else {
+            String mainClassName = args[0].replace("./", "").replace(".java", "");
+            LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./");
+            liveVariableAnalysis.doAnalysisAndShowWithArg(args[0]);
+        }
 
 //        String mainClassName = "Calculate";
 //        String mainClassPath = String.format("./target/test-classes/%s.class", mainClassName);
@@ -72,8 +76,7 @@ public class LiveVariableAnalysis {
 
     void setupSoot() {
         Options.v().set_prepend_classpath(true);
-        Options.v().set_process_dir(Collections.singletonList(classesDirMain));
-        Options.v().set_process_dir(Collections.singletonList(classesDirTest));
+        Options.v().set_process_dir(Collections.singletonList(classesDir));
 
         Options.v().set_keep_line_number(true);
     }
@@ -160,8 +163,7 @@ public class LiveVariableAnalysis {
                 }
                 transferNode(node);
 
-                if (!Objects.equals(inSetBefore.toString(), node.getInSet().toString()) ||
-                        !Objects.equals(outSetBefore.toString(), node.getOutSet().toString()))
+                if (!Objects.equals(inSetBefore.toString(), node.getInSet().toString()) || !Objects.equals(outSetBefore.toString(), node.getOutSet().toString()))
                     ifChange = true;
             }
         }
@@ -169,7 +171,7 @@ public class LiveVariableAnalysis {
     }
 
     void doAnalysisAndShow() throws IOException {
-        String[] sourceCodes = readFile(classesDirTest + mainClass.getName() + ".java");
+        String[] sourceCodes = readFile(classesDir + mainClass.getName() + ".java");
 
         int iterNum = doAnalysis();
         Map<Integer, String> map = new HashMap<>();
@@ -180,9 +182,9 @@ public class LiveVariableAnalysis {
             int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
             if (newSourceID != sourceID) {
                 sourceID = newSourceID;
-                System.out.printf("\n=====Source[%d]: %s=====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
+                System.out.printf("\n===== Source[%d]: %s =====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
             }
-            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet());
+            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\nInSet [%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet(), stmtID, cfgNode.getInSet());
             map.put(sourceID, cfgNode.getOutSet().toString());
         }
 
@@ -192,6 +194,32 @@ public class LiveVariableAnalysis {
             else sourceCodes[i] += "\n";
         }
         writeFile(outputDir + mainClass.getName() + ".java", sourceCodes);
+    }
+
+    void doAnalysisAndShowWithArg(String filePath) throws IOException {
+        String[] sourceCodes = readFile(filePath);
+
+        int iterNum = doAnalysis();
+        Map<Integer, String> map = new HashMap<>();
+        System.out.printf("Iteration %d times\n", iterNum);
+        int stmtID = 0, sourceID = 1;
+        for (CFGNode cfgNode : myCFG.getCfgNodes()) {
+            stmtID += 1;
+            int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
+            if (newSourceID != sourceID) {
+                sourceID = newSourceID;
+                System.out.printf("\n===== Source[%d]: %s =====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
+            }
+            System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\nInSet [%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet(), stmtID, cfgNode.getInSet());
+            map.put(sourceID, cfgNode.getOutSet().toString());
+        }
+
+        for (int i = 0; i < sourceCodes.length; i++) {
+            String out = map.get(i + 1);
+            if (out != null) sourceCodes[i] += "\t" + out + "\n";
+            else sourceCodes[i] += "\n";
+        }
+        writeFile(classesDir + mainClass.getName() + ".java", sourceCodes);
     }
 
     String[] readFile(String filePath) {
