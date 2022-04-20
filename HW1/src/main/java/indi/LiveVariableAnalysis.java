@@ -47,7 +47,7 @@ public class LiveVariableAnalysis {
         String mainMethodName = "main";
 
         if (args.length == 0) {
-            String mainClassName = "test0";
+            String mainClassName = "Exception";
             LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, "./src/test/java/");
             liveVariableAnalysis.doAnalysisAndShow();
         } else {
@@ -90,6 +90,14 @@ public class LiveVariableAnalysis {
         Set<Local> temp = upNode.getOutSet();
         temp.addAll(downNode.getInSet());
         upNode.setOutSet(temp);
+    }
+
+    Set<Local> meetInto(Set<Local> one, Set<Local> two) {
+        Set<Local> res = new HashSet<>();
+        res.addAll(one);
+        res.addAll(two);
+        return res;
+
     }
 
     void transferNode(CFGNode node) {
@@ -168,22 +176,38 @@ public class LiveVariableAnalysis {
         String[] sourceCodes = readFile(classesDir + mainClass.getName() + ".java");
 
         int iterNum = doAnalysis();
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, Set<Local>> map = new HashMap<>();
+        Set<Integer> visitedSourceBlock = new HashSet();
+        boolean branchFlag = false;
         System.out.printf("Iteration %d times\n", iterNum);
         int stmtID = 0, sourceID = 1;
+        Set<Local> lastOutSet = new HashSet<>();
         for (CFGNode cfgNode : myCFG.getCfgNodes()) {
             stmtID += 1;
             int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
             if (newSourceID != sourceID) {
+                if (branchFlag) {
+                    map.put(sourceID, meetInto(lastOutSet, map.get(sourceID)));
+                    branchFlag = false;
+                }
+
+                visitedSourceBlock.add(sourceID);
                 sourceID = newSourceID;
                 System.out.printf("\n===== Source[%d]: %s =====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
+
+                if (visitedSourceBlock.contains(newSourceID)) {
+                    branchFlag = true;
+                }
             }
             System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\nInSet [%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet(), stmtID, cfgNode.getInSet());
-            map.put(sourceID, cfgNode.getOutSet().toString());
+            if (!branchFlag) {
+                map.put(sourceID, cfgNode.getOutSet());
+            }
+            lastOutSet = cfgNode.getOutSet();
         }
 
         for (int i = 0; i < sourceCodes.length; i++) {
-            String out = map.get(i + 1);
+            Set<Local> out = map.get(i + 1);
             if (out != null) sourceCodes[i] += "\t" + out + "\n";
             else sourceCodes[i] += "\n";
         }
@@ -194,23 +218,38 @@ public class LiveVariableAnalysis {
         String[] sourceCodes = readFile(filePath);
 
         int iterNum = doAnalysis();
-
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, Set<Local>> map = new HashMap<>();
+        Set<Integer> visitedSourceBlock = new HashSet();
+        boolean branchFlag = false;
         System.out.printf("Iteration %d times\n", iterNum);
         int stmtID = 0, sourceID = 1;
+        Set<Local> lastOutSet = new HashSet<>();
         for (CFGNode cfgNode : myCFG.getCfgNodes()) {
             stmtID += 1;
             int newSourceID = cfgNode.getUnit().getJavaSourceStartLineNumber();
             if (newSourceID != sourceID) {
+                if (branchFlag) {
+                    map.put(sourceID, meetInto(lastOutSet, map.get(sourceID)));
+                    branchFlag = false;
+                }
+
+                visitedSourceBlock.add(sourceID);
                 sourceID = newSourceID;
                 System.out.printf("\n===== Source[%d]: %s =====\n", sourceID, sourceCodes[sourceID - 1].replaceAll(" ", ""));
+
+                if (visitedSourceBlock.contains(newSourceID)) {
+                    branchFlag = true;
+                }
             }
             System.out.printf("StateM[%d]: %s,\nOutSet[%d]: %s\nInSet [%d]: %s\n", stmtID, cfgNode.getUnit(), stmtID, cfgNode.getOutSet(), stmtID, cfgNode.getInSet());
-            map.put(sourceID, cfgNode.getOutSet().toString());
+            if (!branchFlag) {
+                map.put(sourceID, cfgNode.getOutSet());
+            }
+            lastOutSet = cfgNode.getOutSet();
         }
 
         for (int i = 0; i < sourceCodes.length; i++) {
-            String out = map.get(i + 1);
+            Set<Local> out = map.get(i + 1);
             if (out != null) sourceCodes[i] += " " + out + "\n";
             else sourceCodes[i] += "\n";
         }
