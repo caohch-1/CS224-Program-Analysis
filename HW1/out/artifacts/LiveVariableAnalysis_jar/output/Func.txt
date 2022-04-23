@@ -1,5 +1,0 @@
-Func func = new Func(); [func]
-int a = 10; [a, func]
-int b = 20; [b, a, func]
-int c = func.add(a, b); [c]
-System.out.println(c); []

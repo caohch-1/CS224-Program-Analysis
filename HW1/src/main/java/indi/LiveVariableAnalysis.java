@@ -62,6 +62,7 @@ public class LiveVariableAnalysis {
                 LiveVariableAnalysis liveVariableAnalysis = new LiveVariableAnalysis(mainClassName, mainMethodName, args[0] + "/");
                 liveVariableAnalysis.doAnalysisAndShowWithArg(testJava.getPath());
             }
+            logger.info(String.format("All %d files in %s is analyzed.", testJavaPaths.length, args[0]));
         }
     }
 
