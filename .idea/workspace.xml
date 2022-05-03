@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3010a4dd-3901-422a-8d2e-49065a6b6db1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/4/3/434eb35828c151381447632a831810cb60fbcb83" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/4/3/434eb35828c151381447632a831810cb60fbcb83" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/HW1/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
-    </list>
+    <list default="true" id="3010a4dd-3901-422a-8d2e-49065a6b6db1" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,6 +32,7 @@
       <updated>1648564232568</updated>
       <workItem from="1648564233675" duration="15000" />
       <workItem from="1648903422529" duration="54000" />
+      <workItem from="1651079109288" duration="6000" />
     </task>
     <servers />
   </component>
