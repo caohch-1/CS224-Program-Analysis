@@ -1,6 +1,5 @@
-class UnreachableIfBranch {
-
-    int main() {
+public class UnreachableIfBranch {
+    public int main(String[] args) {
         int x = 10;
         int y = 1;
         int z;
@@ -8,12 +7,7 @@ class UnreachableIfBranch {
             z = 100;
         } else {
             z = 200; // unreachable branch
-        }
-
-        if (x == 10) {
-            z = 300;
-        } else {
-            z = 400; // unreachable branch
+            System.out.println("Hello"); // unreachable branch
         }
         return z;
     }

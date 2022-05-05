@@ -1,0 +1,10 @@
+Line 3 : int x = 10;	
+Line 4 : int y = 1;	
+Line 5 : int z;	
+Line 6 : if (x > y) {	
+Line 7 : z = 100;	
+Line 8 : } else {	
+Line 9 : z = 200; // unreachable branch	unreachable branch
+Line 10 : System.out.println("Hello"); // unreachable branch	unreachable branch
+Line 11 : }	
+Line 12 : return z;	

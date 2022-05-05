@@ -46,6 +46,8 @@ public class ConstantPropagationMap {
             Value right = binopExpr.getOp2();
             ConstantPropagationValue rightCPValue = calculate(right);
 
+//            System.out.printf("%s, %s\n", leftCPValue, rightCPValue);
+
             if (leftCPValue == UtilCPValue.UNDEF && rightCPValue == UtilCPValue.UNDEF) return UtilCPValue.UNDEF;
 
             if (leftCPValue == UtilCPValue.UNDEF || rightCPValue == UtilCPValue.UNDEF) return UtilCPValue.NAC;
@@ -72,6 +74,13 @@ public class ConstantPropagationMap {
                 return ConstantPropagationValue.newConstantPropagationValue(leftCPValue.value >= rightCPValue.value);
             else if (binopExpr instanceof LeExpr)
                 return ConstantPropagationValue.newConstantPropagationValue(leftCPValue.value <= rightCPValue.value);
+            else if (binopExpr instanceof RemExpr)
+                return ConstantPropagationValue.newConstantPropagationValue(leftCPValue.value % rightCPValue.value);
+            else if (binopExpr instanceof ShlExpr)
+                return ConstantPropagationValue.newConstantPropagationValue(leftCPValue.value << rightCPValue.value);
+            else if (binopExpr instanceof ShrExpr)
+                return ConstantPropagationValue.newConstantPropagationValue(leftCPValue.value >> rightCPValue.value);
+
         }
         return UtilCPValue.NAC;
     }

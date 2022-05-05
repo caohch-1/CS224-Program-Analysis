@@ -1,0 +1,7 @@
+Line 3 : int x = 1;	
+Line 4 : int y = 0;	
+Line 5 : int z = 100;	
+Line 6 : while (x > y) {	
+Line 7 : use(z);	
+Line 8 : }	
+Line 9 : dead(); // unreachable branch	unreachable branch

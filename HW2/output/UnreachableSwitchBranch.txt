@@ -1,0 +1,15 @@
+Line 3 : int x = 1;	
+Line 4 : int y = x << 2;	
+Line 5 : switch (y) {	
+Line 6 : case 2:	
+Line 7 : use(2); // unreachable case	unreachable branch
+Line 8 : break; // unreachable case	unreachable branch
+Line 9 : case 4:	
+Line 10 : use(4);	
+Line 11 : case 8:	
+Line 12 : use(8);	
+Line 13 : break;	
+Line 14 : default:	
+Line 15 : use(666); // unreachable case	unreachable branch
+Line 16 : break; // unreachable case	unreachable branch
+Line 17 : }	
