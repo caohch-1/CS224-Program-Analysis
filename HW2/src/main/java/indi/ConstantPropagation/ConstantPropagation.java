@@ -1,23 +1,22 @@
 package indi.ConstantPropagation;
 
+import indi.Util.WorkListLoopForward;
 import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.jimple.AssignStmt;
 import soot.toolkits.graph.DirectedGraph;
-import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 import java.util.HashMap;
 
-public class ConstantPropagation extends ForwardFlowAnalysis<Unit, ConstantPropagationMap> {
+public class ConstantPropagation extends WorkListLoopForward {
 
     public ConstantPropagation(DirectedGraph<Unit> graph) {
         super(graph);
         doAnalysis();
     }
 
-    @Override
-    protected void flowThrough(ConstantPropagationMap in, Unit d, ConstantPropagationMap out) {
+    protected void flowThrough(ConstantPropagationFlow in, Unit d, ConstantPropagationFlow out) {
         copy(in, out);
         if (d instanceof AssignStmt) {
             AssignStmt assignStmt = (AssignStmt) d;
@@ -32,19 +31,16 @@ public class ConstantPropagation extends ForwardFlowAnalysis<Unit, ConstantPropa
         }
     }
 
-    @Override
-    protected ConstantPropagationMap newInitialFlow() {
-        return new ConstantPropagationMap(new HashMap<>());
+    protected ConstantPropagationFlow newInitialFlow() {
+        return new ConstantPropagationFlow(new HashMap<>());
     }
 
-    @Override
-    protected void merge(ConstantPropagationMap in1, ConstantPropagationMap in2, ConstantPropagationMap out) {
-        ConstantPropagationMap meet = ConstantPropagationMap.meet(in1, in2);
+    protected void merge(ConstantPropagationFlow in1, ConstantPropagationFlow in2, ConstantPropagationFlow out) {
+        ConstantPropagationFlow meet = ConstantPropagationFlow.meet(in1, in2);
         copy(meet, out);
     }
 
-    @Override
-    protected void copy(ConstantPropagationMap source, ConstantPropagationMap dest) {
+    protected void copy(ConstantPropagationFlow source, ConstantPropagationFlow dest) {
         dest.local2CPValue.putAll(source.local2CPValue);
     }
 }

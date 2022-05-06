@@ -1,9 +1,10 @@
 package indi;
 
 import indi.ConstantPropagation.ConstantPropagation;
-import indi.ConstantPropagation.ConstantPropagationMap;
+import indi.ConstantPropagation.ConstantPropagationFlow;
 import indi.ConstantPropagation.ConstantPropagationValue;
-import indi.ConstantPropagation.UtilCPValue;
+import indi.LiveVariable.LiveVariableAnalysis;
+import indi.Util.UtilCPValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.*;
@@ -72,7 +73,7 @@ public class DeadCodeDetection {
             return;
         }
 
-        for (File testFile: testJavaPaths) {
+        for (File testFile : testJavaPaths) {
             if (testFile.getName().contains(".java")) {
                 String mainClassName = testFile.getName().replace(".java", "");
                 System.out.printf("=====Analysis for %s Start=====%n", mainClassName);
@@ -149,12 +150,12 @@ public class DeadCodeDetection {
                 IfStmt ifStmt = (IfStmt) ut;
                 Value value = ifStmt.getCondition();
 
-                ConstantPropagationMap CPMap = constantPropagation.getFlowBefore(ifStmt);
+                ConstantPropagationFlow CPMap = constantPropagation.getFlowBefore(ifStmt);
                 ConstantPropagationValue CPValue = CPMap.calculate(value);
 
                 if (CPValue != UtilCPValue.UNDEF && CPValue != UtilCPValue.NAC) {
                     if (CPValue.getValue() == 0) {
-                        unreachableBranchSet.add(new Pair<Unit, Unit>(ifStmt, ifStmt.getTarget()));
+                        unreachableBranchSet.add(new Pair<>(ifStmt, ifStmt.getTarget()));
                     } else if (CPValue.getValue() == 1) {
                         unreachableBranchSet.add(new Pair<>(ifStmt, jimpleBody.getUnits().getSuccOf(ifStmt)));
                     }
@@ -165,22 +166,25 @@ public class DeadCodeDetection {
             if (ut instanceof LookupSwitchStmt) {
                 LookupSwitchStmt switchStmt = (LookupSwitchStmt) ut;
                 Value value = switchStmt.getKey();
-                ConstantPropagationMap CPMap = constantPropagation.getFlowBefore(switchStmt);
+                ConstantPropagationFlow CPMap = constantPropagation.getFlowBefore(switchStmt);
                 ConstantPropagationValue CPValue = CPMap.calculate(value);
 
                 if (CPValue != UtilCPValue.NAC && CPValue != UtilCPValue.UNDEF) {
                     for (int i = 0; i < switchStmt.getLookupValues().size(); i++) {
                         int lookupValue = switchStmt.getLookupValue(i);
+
                         if (CPValue.getValue() != lookupValue) {
                             unreachableBranchSet.add(new Pair<>(switchStmt, switchStmt.getTarget(i)));
                         }
                         if (CPValue.getValue() == lookupValue) {
+
                             unreachableBranchSet.add(new Pair<>(switchStmt, switchStmt.getDefaultTarget()));
                         }
                     }
                 }
             }
         }
+
 
         Set<Unit> visited = new HashSet<>();
         Queue<Unit> queue = new LinkedList<>(cfg.getHeads());
@@ -193,7 +197,7 @@ public class DeadCodeDetection {
             visited.add(currUnit);
 
             for (Unit succUnit : cfg.getSuccsOf(currUnit)) {
-                if (!unreachableBranchSet.contains(new Pair<Unit, Unit>(currUnit, succUnit))) {
+                if (!unreachableBranchSet.contains(new Pair<>(currUnit, succUnit))) {
                     queue.add(succUnit);
                 }
             }
@@ -260,20 +264,20 @@ public class DeadCodeDetection {
     void writeFile(String outDir) throws IOException {
 
         Files.createDirectories(Paths.get(outDir));
-        FileWriter writer = new FileWriter(outDir+mainClass.getName()+".txt");
+        FileWriter writer = new FileWriter(outDir + mainClass.getName() + ".txt");
         boolean ifWrite = false;
         Stack<String> mainMethodStack = new Stack<>();
-        for (int i = 0; i < sourceCodes.length; i ++) {
+        for (int i = 0; i < sourceCodes.length; i++) {
             if (mainMethodStack.size() == 1 && ifWrite && sourceCodes[i].trim().equals("}")) {
                 break;
             }
 
             if (ifWrite) {
-                String line = String.format("Line %d : %s\t", i+1, sourceCodes[i].trim());
+                String line = String.format("Line %d : %s\t", i + 1, sourceCodes[i].trim());
                 if (unreachableBranchStmts.contains(i + 1)) {
                     line += "unreachable branch\n";
                 } else if (controlFlowUnreachableStmts.contains(i + 1)) {
-                    line += "control-flow unreachableode\n";
+                    line += "control-flow unreachable code\n";
                 } else if (deadAssignmentStmts.contains(i + 1)) {
                     line += "dead assignment\n";
                 } else {
@@ -285,11 +289,11 @@ public class DeadCodeDetection {
             if (sourceCodes[i].contains("main")) {
                 ifWrite = true;
                 mainMethodStack.push("{");
-            }else if (sourceCodes[i].contains("{") && ifWrite) {
+            } else if (sourceCodes[i].contains("{") && ifWrite) {
                 mainMethodStack.push("{");
             }
 
-            if (sourceCodes[i].contains("}")){
+            if (sourceCodes[i].contains("}")) {
                 mainMethodStack.pop();
             }
 

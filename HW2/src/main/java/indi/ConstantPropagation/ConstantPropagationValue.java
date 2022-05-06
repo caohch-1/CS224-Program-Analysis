@@ -1,10 +1,11 @@
 package indi.ConstantPropagation;
 
+import indi.Util.UtilCPValue;
+
 import java.util.Objects;
 
 public class ConstantPropagationValue {
     int value;
-
 
     public ConstantPropagationValue(int value) {
         this.value = value;

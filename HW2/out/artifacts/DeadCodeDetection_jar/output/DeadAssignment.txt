@@ -1,6 +1,0 @@
-Line 4 : int x = 1;	
-Line 5 : int y = x + 2; // dead assignment	dead assignment
-Line 6 : int z = x + 3;	
-Line 7 : use(z);	
-Line 8 : int a = x; // dead assignment	dead assignment
-Line 9 : int b = invoke();	

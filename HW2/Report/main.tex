@@ -1,0 +1,128 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{dirtree}
+\usepackage{listings}
+
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Report for \textit{HW2 DeadCodeAnalysis}}
+
+
+\author{\IEEEauthorblockN{Hongchen Cao}
+\IEEEauthorblockA{Shanghaitech University}
+Shanghai, China\\
+caohch1@shanghaitech.edu.cn}
+
+
+\maketitle
+\begin{abstract}
+    Report for \textit{CS224 Homework2: Dead Code Analysis}, including project structure, algorithm introduction, and Implementation description.
+\end{abstract}
+
+\section{Project Structure}
+Following is the directory tree of the source code of the project:
+\dirtree{%
+.1 LiveVariableAnalysis.
+.2 src.
+.3 main.
+.4 java.
+.5 indi.
+.6 Util.
+.6 LiveVariable.
+.7 LiveVariableAnalysis.
+.6 ConstantPropagation.
+.7 ConstantPropagation.
+.7 ConstantPropagationFlow.
+.7 ConstantPropagationValue.
+.6 DeadCodeDetection.
+.4 resources.
+.3 test.
+.2 out.
+.2 pox.xml.
+}
+Here we give a brief description of each part of the project:
+\begin{itemize}
+    \item \textbf{pom.xml: } Maven configuration of the project.
+    \item \textbf{out: } Directory holds built artifacts(i.e., jar package).
+    \item \textbf{src/main/java/indi: } Directory holds key codes for the project. Specifically, \textbf{DeadCodeDetection} is the key file for the project, \textbf{LiveVariable} is based on LiveVariableAnalysis in HW1, \textbf{ConstantPropagation} is used to do constant propagation based on worklist algorithm, and \textbf{Util} contains some helper functions and classes.
+    \item \textbf{src/main/resources: } Directory holds resource files like MANIFEST.MF.
+    \item \textbf{src/test: } Directory holds test files of the project.
+\end{itemize}
+
+For the four key java file (i.e., \textbf{DeadCodeDetection.java}, \textbf{ConstantPropagation.java}, \textbf{ConstantPropagationFlow.java}, and \textbf{ConstantPropagationValue.java}), we describe them in detail in Sec.~\ref{sec:imp}.
+
+\section{Algorithm}
+\begin{lstlisting}[label=lst:DCD, caption=Algorithm for DeadCodeDetection, language=java, mathescape=true, numbers=none]
+    $\text{HashSet deadCodeDetection(ControlFlowGraph cfg) \{}$
+        $\text{deadCodeSet}$ = $\emptyset$;
+        $\text{deadCodeSet}$ += $\text{controlFlowUnreachableSet(cfg)}$;
+        $\text{deadCodeSet}$ += $\text{unreachableBranchSet(cfg)}$;
+        $\text{deadCodeSet}$ += $\text{deadAssignmentSet(cfg)}$;
+        $\text{return deadCodeSet}$;
+
+    }
+
+\end{lstlisting}
+
+As shown in List.~\ref{lst:DCD}, we divide the DeadCodeDetection into three parts, including control-flow unreachable detection, unreachable branch detection, and dead assignment detection.
+
+
+\begin{lstlisting}[label=lst:CP, caption=Algorithm for ConstantPropagation, language=java, mathescape=true, numbers=none]
+    $\text{OUT[entry]}$ = $\emptyset$
+    $\text{for (each basic block B is not entry)}$
+        $\text{OUT[B]}$ = $\emptyset$
+    $\text{Worklist}$ $\leftarrow$ $\text{all basic blocks}$
+    $\text{while (Worklist is not empty)}$
+        $\text{Pick a basic block B from Worklist}$
+        $\text{old\_OUT}$ = $\text{OUT[B]}$
+        $\text{IN[B]}$ = $\cup_{\text{P a predecessor of B}}$ OUT[P];
+        $\text{OUT[B]}$  = $\text{gen}_B \cup$(IN[B] - $\text{kill}_B$);
+        $\text{if (old\_OUT} \neq \text{OUT[B])}$
+            $\text{Add all successors of B to Worklist}$
+        
+        
+\end{lstlisting}
+List.~\ref{lst:CP} shows the pseudocode of the constant propagation.
+
+
+\section{Implementation}\label{sec:imp}
+Next we introduce the four key classes in the project, and we describe the important member functions and attributes.
+For the other classes, they are adopted from \textit{HW1} or are helper classes. Thus, we don't describe them in detail.
+
+\subsection{DeadCodeDetection}
+This class contains three important functions corresponding to three kinds of analysis.
+
+\noindent $\bullet$ \textbf{controlFlowUnreachableDetection(). } We traverse the control flow graph and record whether each statement is reachable or not, and if so, add it to a hash set. Finally the statements that are not in this set but are in the analyzed method are stored in a new hash set and returned.
+
+\noindent $\bullet$ \textbf{unreachableBranchDetection(). } We first do the constant propagation, then we traverse the control flow graph and for each statement we determine if it is an $if$ or $switch$ statement. if it is an $if$ statement we further determine if its conditional expression is true and record the unreachable edges in the control flow graph . If it is a $switch$ statement, we determine if the conditional expression is a constant and record the unreachable edges in the control flow graph. Finally, we traverse the control flow graph again, and for each statement, if it is an endpoint pointed to by the previously recorded unreachable edge, we store it in a hash set. 
+
+\noindent $\bullet$ \textbf{deadAssignmentDetection(). } We first do a live variable analysis, then we traverse the control flow graph and for each statement we determine if it is an assignment statement. If so, we further determine if its right value calls a function. If not, then we add the statement to a hash set and finally we return the set.
+
+\subsection{ConstantPropagationValue(CPValue)}
+CPValue is used to indicate whether a variable is a constant or not. Specifically, it includes NAC, UNDEF and specific constant values.
+
+\noindent $\bullet$ \textbf{meet(CPValue v1, CPValue v2). } Depending on the values of the two CPValue, we perform different aggregation operations. This is mainly implemented to cope with one of the values being NAC or UNDEF.
+
+\subsection{ConstantPropagationFlow(CPFlow)}
+Our main job in this class is to maintain a map that keeps track of the variables and their corresponding CPValue. there are two main functions that ensure the proper behavior of this class.
+
+\noindent $\bullet$ \textbf{meet(CPFlow f1, CPFlow f2). } We get the respective maps in f1 and f2, and then add the keys in both maps to a hash set. Then we iterate through the set, and for each key, we get its corresponding CPValue in f1 and f2, and call the \textit{calculate} function to calculate the result. Finally, the new key-value pair is added to the map of the instance that called this function.
+
+\noindent $\bullet$ \textbf{calculate(Value value). } This function will be called recursively. If value is a Local type, the map is queried directly to return the corresponding CPValue. if it is an IntConstant type, a new CPValue is created and returned. If BinopExpr, we get the values on both sides of the operator and recursively call the function to get the return value. Subsequently, if the values on both sides are constants (i.e., not NAC or UNDEF), the corresponding calculations are performed depending on the operator.
+
+
+\subsection{ConstantPropagation}
+We maintain a queue. First we add the entry of the analyzed function to this queue, and then we open a $while$ loop until the queue is empty. In each iteration, we fetch the first element of the queue. We call the calculate function in CPFlow to compute the updated CPFlow for each statement, and if there is nothing to update, we do not add its successor statements to the queue, and vice versa.
+
+
+\end{document}
