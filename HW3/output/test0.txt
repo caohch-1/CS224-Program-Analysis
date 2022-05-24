@@ -1,0 +1,8 @@
+#reachable methods:3
+<test0: int ten()>
+<test0: int addOne(int)>
+<test0: void main()>
+
+#call graph edges:2
+Line 4: <test0: void main()> -> [<test0: int addOne(int)>]
+Line 6: <test0: void main()> -> [<test0: int ten()>]

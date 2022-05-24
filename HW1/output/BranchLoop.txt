@@ -1,0 +1,11 @@
+int a, i;
+a=0; [a, k, m, n]
+for (i = m - 1; i < k; i++) { [a, i, k, n]
+    if (i >= n) { [i, k, n]
+        a = n; [a, i, k, n]
+    }
+    a = a + i; [a, i, k, n]
+}
+return a; []
+}
+

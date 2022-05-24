@@ -1,0 +1,10 @@
+#reachable methods:4
+<B: void <init>()>
+<B: void foo()>
+<AbstractMethod: void main(java.lang.String[])>
+<A: void <init>()>
+
+#call graph edges:3
+Line 13: <B: void <init>()> -> [<A: void <init>()>]
+Line 4: <AbstractMethod: void main(java.lang.String[])> -> [<B: void <init>()>]
+Line 5: <AbstractMethod: void main(java.lang.String[])> -> [<B: void foo()>]

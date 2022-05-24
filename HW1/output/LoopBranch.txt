@@ -1,0 +1,15 @@
+int x, y, z=0; [d, c, z]
+x = 1; [d, c, x, z]
+y = 2; [d, c, x, z, y]
+if (c > 0) { [d, c, z, y]
+    do { [d, c, z, y]
+        x = y + 1; [d, c, x, z]
+        y = 2 * z; [d, c, x, z, y]
+        if (d) { [d, c, z, y]
+            x = y + z; [d, c, x, y]
+        }
+        z = 1; [d, c, x, z, y]
+    } while (c < 20); [x]
+}
+z = x; []
+}

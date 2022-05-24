@@ -1,0 +1,4 @@
+int d = a + b; [d, a]
+b = d; [b, a]
+c = a; [b]
+return b; []

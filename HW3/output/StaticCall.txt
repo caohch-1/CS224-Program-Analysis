@@ -1,0 +1,13 @@
+#reachable methods:5
+<A1: void baz()>
+<StaticCall: void main(java.lang.String[])>
+<StaticCall: void bar()>
+<B1: void qux()>
+<StaticCall: void foo()>
+
+#call graph edges:5
+Line 18: <A1: void baz()> -> [<B1: void qux()>]
+Line 4: <StaticCall: void main(java.lang.String[])> -> [<StaticCall: void foo()>]
+Line 5: <StaticCall: void main(java.lang.String[])> -> [<A1: void baz()>]
+Line 24: <B1: void qux()> -> [<A1: void baz()>]
+Line 9: <StaticCall: void foo()> -> [<StaticCall: void bar()>]

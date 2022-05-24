@@ -1,0 +1,10 @@
+#reachable methods:5
+<Two: int get()>
+<One: int get()>
+<Interface: void main(java.lang.String[])>
+<One: void <init>()>
+<Zero: int get()>
+
+#call graph edges:2
+Line 8: <Interface: void main(java.lang.String[])> -> [<One: void <init>()>]
+Line 9: <Interface: void main(java.lang.String[])> -> [<One: int get()>, <Zero: int get()>, <Two: int get()>]

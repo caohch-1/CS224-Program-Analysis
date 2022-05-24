@@ -1,0 +1,7 @@
+#reachable methods:2
+<Fibonacci: void main(java.lang.String[])>
+<Fibonacci: int getFibonacci(int)>
+
+#call graph edges:2
+Line 5: <Fibonacci: void main(java.lang.String[])> -> [<Fibonacci: int getFibonacci(int)>]
+Line 10: <Fibonacci: int getFibonacci(int)> -> [<Fibonacci: int getFibonacci(int)>]
