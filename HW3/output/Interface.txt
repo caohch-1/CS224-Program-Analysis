@@ -1,9 +1,9 @@
 #reachable methods:5
-<Two: int get()>
-<One: int get()>
 <Interface: void main(java.lang.String[])>
-<One: void <init>()>
 <Zero: int get()>
+<One: int get()>
+<Two: int get()>
+<One: void <init>()>
 
 #call graph edges:2
 Line 8: <Interface: void main(java.lang.String[])> -> [<One: void <init>()>]

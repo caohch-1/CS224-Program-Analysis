@@ -1,8 +1,0 @@
-#reachable methods:3
-<PlusPlus: void main(java.lang.String[])>
-<PlusPlus: void test2(int,int)>
-<PlusPlus: void test1(int,int)>
-
-#call graph edges:2
-Line 3: <PlusPlus: void main(java.lang.String[])> -> [<PlusPlus: void test1(int,int)>]
-Line 4: <PlusPlus: void main(java.lang.String[])> -> [<PlusPlus: void test2(int,int)>]

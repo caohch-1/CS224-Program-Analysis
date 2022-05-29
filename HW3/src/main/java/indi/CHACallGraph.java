@@ -22,7 +22,7 @@ public class CHACallGraph {
     String[] sourceCodes;
 
     FastHierarchy chaHierarchy;
-    JimpleCG jimpleCG;
+    baseCG cg;
 
     public CHACallGraph(String className, String dir) {
         classDir = dir;
@@ -37,19 +37,19 @@ public class CHACallGraph {
 
         sourceCodes = readFile(classDir + "/" + className + ".java");
         chaHierarchy = new FastHierarchy();
-        jimpleCG = new JimpleCG();
+        cg = new baseCG();
 
-        Queue<SootMethod> worklist = new LinkedList<>(jimpleCG.startPoints);
+        Queue<SootMethod> worklist = new LinkedList<>(cg.startPoints);
         while (!worklist.isEmpty()) {
             SootMethod sootMethod = worklist.poll();
             if (!sootMethod.hasActiveBody()) continue;
 
-            Collection<Unit> callSites = jimpleCG.getCallSite(sootMethod);
+            Collection<Unit> callSites = cg.getCallSite(sootMethod);
             for (Unit callSite : callSites) {
-                Set<SootMethod> callees = resolveCallee(callSite);
+                Set<SootMethod> callees = resolve(callSite);
                 for (SootMethod callee : callees) {
-                    if (!jimpleCG.reachableMethods.contains(callee)) worklist.add(callee);
-                    jimpleCG.addEdge(callSite, callee, MethodHelper.getMethodKind(callSite));
+                    if (!cg.reachableMethods.contains(callee)) worklist.add(callee);
+                    cg.addEdge(callSite, callee, MethodHelper.getMethodKind(callSite));
                 }
             }
         }
@@ -77,7 +77,7 @@ public class CHACallGraph {
 
                 StringBuilder rcOut = new StringBuilder();
                 int rcNum = 0;
-                for (SootMethod rm : chaCallGraph.jimpleCG.reachableMethods) {
+                for (SootMethod rm : chaCallGraph.cg.reachableMethods) {
                     if (rm.getSignature().equals("<java.lang.Object: void <init>()>")) continue;
                     rcOut.append(rm.getSignature()).append("\n");
                     rcNum += 1;
@@ -87,8 +87,8 @@ public class CHACallGraph {
 
                 StringBuilder edgeOut = new StringBuilder();
                 int edgeNum = 0;
-                for (SootMethod rm : chaCallGraph.jimpleCG.reachableMethods) {
-                    Set<Edge> edgeSet = chaCallGraph.jimpleCG.getCallOut(rm);
+                for (SootMethod rm : chaCallGraph.cg.reachableMethods) {
+                    Set<Edge> edgeSet = chaCallGraph.cg.getCallOut(rm);
                     Map<Integer, Set<String>> line2calleSet = new HashMap<>();
 
                     for (Edge callEdge : edgeSet) {
@@ -126,7 +126,6 @@ public class CHACallGraph {
     SootMethod dispatch(SootClass sootClass, SootMethod methodInput) {
         for (SootMethod method : sootClass.getMethods()) {
             if (!method.isAbstract()) {
-                // Todo: Not sure about using subSignature or signature
                 if (method.getSubSignature().equals(methodInput.getSubSignature())) {
                     return method;
                 }
@@ -140,7 +139,7 @@ public class CHACallGraph {
         return null;
     }
 
-    Set<SootMethod> resolveCallee(Unit unit) {
+    Set<SootMethod> resolve(Unit unit) {
         Stmt stmt = (Stmt) unit;
         InvokeExpr invokeExpr = stmt.getInvokeExpr();
         SootMethod sootMethod = invokeExpr.getMethod();

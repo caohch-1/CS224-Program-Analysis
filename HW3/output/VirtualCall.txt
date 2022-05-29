@@ -1,12 +1,12 @@
 #reachable methods:6
-<VirtualCall: void main(java.lang.String[])>
-<B2: void <init>()>
-<A2: void <init>()>
-<D: void foo()>
 <C: void foo()>
+<B2: void <init>()>
+<D: void foo()>
+<VirtualCall: void main(java.lang.String[])>
 <A2: void foo()>
+<A2: void <init>()>
 
 #call graph edges:3
+Line 14: <B2: void <init>()> -> [<A2: void <init>()>]
 Line 4: <VirtualCall: void main(java.lang.String[])> -> [<B2: void <init>()>]
 Line 5: <VirtualCall: void main(java.lang.String[])> -> [<A2: void foo()>, <D: void foo()>, <C: void foo()>]
-Line 14: <B2: void <init>()> -> [<A2: void <init>()>]

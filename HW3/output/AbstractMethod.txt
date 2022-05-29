@@ -1,8 +1,8 @@
 #reachable methods:4
-<AbstractMethod: void main(java.lang.String[])>
 <B: void foo()>
-<B: void <init>()>
 <A: void <init>()>
+<AbstractMethod: void main(java.lang.String[])>
+<B: void <init>()>
 
 #call graph edges:3
 Line 4: <AbstractMethod: void main(java.lang.String[])> -> [<B: void <init>()>]

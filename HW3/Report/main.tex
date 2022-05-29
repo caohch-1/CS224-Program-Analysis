@@ -1,0 +1,100 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{dirtree}
+\usepackage{listings}
+
+\newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Report for \textit{HW3 CHA Call Graph}}
+
+
+\author{\IEEEauthorblockN{Hongchen Cao}
+\IEEEauthorblockA{Shanghaitech University}
+Shanghai, China\\
+caohch1@shanghaitech.edu.cn}
+
+
+\maketitle
+\begin{abstract}
+    Report for \textit{CS224 Homework3: CHA Call Graph}, including project structure, algorithm introduction, and Implementation description.
+\end{abstract}
+
+\section{Project Structure}
+Following is the directory tree of the source code of the project:
+\dirtree{%
+.1 CHACallGraph .
+.2 src.
+.3 main.
+.4 java.
+.5 indi.
+.6 baseCG.
+.6 CHACallGraph.
+.6 Edge.
+.6 MethodHelper.
+.3 test.
+.2 out.
+.2 pox.xml.
+}
+Here we give a brief description of each part of the project:
+\begin{itemize}
+    \item \textbf{pom.xml: } Maven configuration of the project.
+    \item \textbf{out: } Directory holds built artifacts(i.e., jar package).
+    \item \textbf{src/main/java/indi: } Directory holds key codes for the project. Specifically, \textbf{CHACallGraph} and \textbf{baseCG} are the key files for the project
+    \item \textbf{src/main/resources: } Directory holds resource files like MANIFEST.MF.
+    \item \textbf{src/test: } Directory holds test files of the project.
+\end{itemize}
+
+For the two key java file (i.e., \textbf{CHACallGraph} and \textbf{baseCG}), we describe them in detail in Sec.~\ref{sec:imp}.
+
+\section{Algorithm}
+\begin{lstlisting}[label=lst:CHA, caption=Algorithm for resolve method in CHA, language=java, mathescape=true, numbers=none]
+    $\text{T}$ = $\emptyset$
+    $\text{m}$ = $\text{method signature at }\textit{cs}$
+    $\text{if }\textit{cs }\text{is a static call then}$
+        $\text{T}$ = $\text{\{m\}}$
+    $\text{if }\textit{cs }\text{is a special call then}$
+        $c^m$ = $\text{class type of m}$
+        $\text{T}$ = $\text{\{Dispatch(}c^m\text{, m)\}}$
+    $\text{if }\textit{cs }\text{is a virtual call then}$
+        $\text{c}$ = $\text{declared type of receiver variable at }\textit{cs}$
+        $\text{foreach }\textit{c' }\text{that is a subclass of }\textit{c }\text{itself do}$
+            $\text{add \{Dispatch(}c'\text{, m)\} to T}$
+    $\text{return T}$
+\end{lstlisting}
+List.~\ref{lst:CHA} shows the pseudocode of the key method \textit{resolve()} in CHA.
+
+
+\section{Implementation}\label{sec:imp}
+Next we introduce the two key classes in the project, and we describe the important member functions and attributes.
+For the other two classes, they are small and naive. Thus, we don't describe them in detail.
+
+\subsection{baseCG}
+This class contains three important functions.
+
+\noindent $\bullet$ \textbf{baseCG(). } Here we travel through all the classes in the input file. For each class, we travse its non-abstract methods. For each method, we store the map from its jimple IR uint to the method itself.
+
+\noindent $\bullet$ \textbf{getCallSite(method). } For a given method, we travel through its units. If the unit contains a call to another method, we add the unit into call sites.
+
+\noindent $\bullet$ \textbf{addEdge(unit, method, kind). } We first mark the method as reachable method. Then we create its corresponding edge which contains its kind, unit, and method. Then we add the edge into corresponding set through the map from callers to callees and calles to callers. 
+
+\subsection{CHACallGraph}
+This class contains three important functions.
+
+\noindent $\bullet$ \textbf{CHACallGraph(...). } We use worklist algorithm to create the  call graph in this method. We iteratively get all the callees of each element(i.e., a caller method) in worklist by resolve() method and add edge into the cg.
+
+\noindent $\bullet$ \textbf{dispatch(class, method). } We first try to find the method from all the methods in the given class by comparing the subsignatures. If we can't find, then we try to find it from the superclass of the given class.
+
+\noindent $\bullet$ \textbf{resolve(unit). } This method totally follows the algorithm in List.~\ref{lst:CHA}. For a static call, we just return the set contains the invkoed method. For a special call, we return the set contains the disptach result. For a virtual call, it can be complex. If it is a interface, we first get all its implementers. If not, we first get its decalred type and then get all its direct and indirect subclasses. Then, for all the classes we get, we invoke dispatch() method and store them in a set.
+
+
+\end{document}
